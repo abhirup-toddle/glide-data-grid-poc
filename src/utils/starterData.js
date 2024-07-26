@@ -29,7 +29,7 @@ export const _columns = [
       bgIconHeader: "#00967d",
       textDark: "#00c5a4",
       textHeader: "#00c5a4",
-      bgCell: "pink",
+      // bgCell: "pink",
     },
   },
   {
