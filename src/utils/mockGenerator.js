@@ -135,3 +135,19 @@ export function generateRandomObjectsArray(count) {
 }
 
 // const randomObjectsArray = generateRandomObjectsArray(5);
+export function sortData(arr, property, direction = "asc") {
+  return arr.sort((a, b) => {
+    let valueA = a[property];
+    let valueB = b[property];
+
+    // Handle empty strings or undefined values
+    if (valueA === "" || valueA === undefined)
+      valueA = direction === "asc" ? "\uffff" : "";
+    if (valueB === "" || valueB === undefined)
+      valueB = direction === "asc" ? "\uffff" : "";
+
+    if (valueA < valueB) return direction === "asc" ? -1 : 1;
+    if (valueA > valueB) return direction === "asc" ? 1 : -1;
+    return 0;
+  });
+}
