@@ -1,4 +1,4 @@
-import { useCallback, useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 import "./App.css";
 import "@glideapps/glide-data-grid/dist/index.css";
 import {
@@ -7,49 +7,13 @@ import {
   GridCellKind,
 } from "@glideapps/glide-data-grid";
 import { range } from "lodash";
-
-const _data = [
-  {
-    name: "Hines Fowler",
-    company: "BUZZNESS",
-    email: "hinesfowler@buzzness.com",
-    phone: "+1 (869) 405-3127",
-  },
-  {
-    name: "Mccray Mcleod",
-    company: "ZOLARITY",
-    email: "mcray",
-    phone: "+1 (972) 546-3983",
-  },
-  {
-    name: "Carmen Mcbride",
-    company: "ZUVY",
-    email: "",
-    phone: "+1 (944) 546-3983",
-  },
-];
-
-const _columns = [
-  {
-    title: "Name",
-    id: "name",
-  },
-  {
-    title: "Company",
-    id: "company",
-  },
-  {
-    title: "Email",
-    id: "email",
-  },
-  {
-    title: "Phone",
-    id: "phone",
-  },
-];
+import { generateRandomObjectsArray } from "./utils/mockGenerator";
+import { _columns, _data } from "./utils/starterData";
 
 function App() {
-  const [data, setData] = useState(_data);
+  // const [data, setData] = useState(_data);
+  const dataEditorRef = useRef(null);
+  const [data, setData] = useState(() => generateRandomObjectsArray(20));
   const [columns, setColumns] = useState(_columns);
   const [selection, setSelection] = useState({
     columns: CompactSelection.empty(),
@@ -57,6 +21,61 @@ function App() {
   });
 
   const [sortableCols, setSortableCols] = useState(columns);
+
+  const setCellValue = useCallback(
+    (row, col, newValue) => {
+      const indexes = ["name", "company", "email", "phone"];
+      const key = indexes[col];
+      // data[row][key] = newValue;
+      data[1]["company"] = "testing";
+      setData([...data]);
+    },
+    [data]
+  );
+
+  function extractXY(obj) {
+    //perform height width check, if they exceed 1, 1 then return empty array
+    if (!obj.current) return [];
+    const result = [];
+    const range = obj.current.range;
+    const rangeStack = obj.current.rangeStack;
+    result.push({ x: range.x, y: range.y });
+    rangeStack.forEach((item) => {
+      result.push({ x: item.x, y: item.y });
+    });
+    return result;
+  }
+
+  function bulkUpdate() {
+    const selectedCells = extractXY(selection);
+    console.log("selectedCells: ", selectedCells);
+    selectedCells.forEach((cell) => {
+      const { x, y } = cell;
+      const indexes = ["name", "company", "email", "phone"];
+      console.log("x, y: ", x, y);
+      const key = indexes[x];
+      data[y][key] = "bulk update";
+      // console.log("cell: ", cell);
+    });
+    setData([...data]);
+  }
+
+  const getSelectedCells = useCallback(() => {
+    console.log("selection: ", selection);
+    console.log("selected Cells: ", extractXY(selection));
+    // const { rows, columns } = selection;
+    // const selectedCells = [];
+    // rows.forEach((r) => {
+    //   columns.forEach((c) => {
+    //     selectedCells.push([c, r]);
+    //   });
+    // });
+    // return selectedCells;
+  }, [selection]);
+
+  // console.log()
+
+  // console.log("data: ", data[1]["company"]);
 
   // const [rowData, setRowData] = useState(() => {
   //   // return range(0, 50).map((x) => [`A: ${x}`, `B: ${x}`]);
@@ -170,64 +189,109 @@ function App() {
   //   </div>
   // );
 
-  return (
-    <DataEditor
-      // rowHeight={30}
-      // minColumnWidth={200}
-      rowMarkers="checkbox"
-      getCellContent={getCellContent}
-      // getCellContent={getCellContentMangled}
-      onCellEdited={onCellEdited}
-      columns={columns}
-      rows={data.length}
-      // rows={5000}
-      // rangeSelect="multi-cell"
-      // onColumnResize={onColumnResize}
-      gridSelection={selection}
-      onGridSelectionChange={setSelection}
-      getCellsForSelection={true}
-      // onRowMoved={(s, e) => {}}
-      // onColumnMoved={(s, e) => {}}
-      onColumnMoved={onColMoved}
-      // onDragStart={(e) => {
-      //   e.setData("text/plain", "Drag data here!");
-      // }}
-      // onPaste={(target, values) => {
-      //   console.log("[onPaste] target: ", target);
-      //   console.log("[onPaste] values: ", values);
+  // console.log("dataEditorRef: ", dataEditorRef);
 
-      //   // return false;
-      //   return true;
-      // }}
-      // // onFinishedEditing={(cell, newValue) => {
-      // //   console.log("onFinishedEditing ran ... ");
-      // //   console.log("cell: ", cell);
-      // //   console.log("newValue: ", newValue);
-      // // }}
-      // rightElement={
-      //   // <ColumnAddButton>
-      //   <button onClick={() => window.alert("Add a column!")}>+</button>
-      //   // </ColumnAddButton>
-      // }
-      // rightElementProps={{
-      //   fill: false,
-      //   sticky: false,
-      // }}
-      // onCellContextMenu={(cell, e) => {
-      //   console.log("[ctxMenu] cell: ", cell);
-      //   console.log("[ctxMenu] e: ", e);
-      //   console.log("[ctxMenu] data: ", getCellContent(cell).data);
-      //   e.preventDefault();
-      // }}
-      // verticalBorder={true}
-      // spanRangeBehavior="allow partial"
-      // theme={(x) => {
-      //   console.log("theme: ", x);
-      //   return {
-      //     bgCell: "pink",
-      //   };
-      // }}
-    />
+  return (
+    <div
+      style={{
+        position: "relative",
+        // width: 400,
+        // height: 900,
+        // overflow: "auto",
+      }}
+    >
+      <div>
+        <button
+          onClick={() => {
+            // console.log("dataEditorRef?.current: ", dataEditorRef?.current);
+            dataEditorRef?.current?.scrollTo(0, 10, "both", "start", "start");
+            dataEditorRef?.current?.appendRow(data.length, false);
+
+            // dataEditorRef?.current?.focus();
+          }}
+        >
+          Scroll to x
+        </button>
+        <button onClick={setCellValue}>Update Value</button>
+        <button onClick={bulkUpdate}>Bulk update</button>
+        <button
+          onClick={() => {
+            // dataEditorRef.current.updateCells([{ cell: [1, 1] }]);
+            // dataEditorRef?.current?.focus([2, 2]);
+            getSelectedCells();
+          }}
+        >
+          Get Selected Cells
+        </button>
+      </div>
+      <DataEditor
+        ref={dataEditorRef}
+        // height={500}
+        // rowHeight={30}
+        // minColumnWidth={200}
+        rowMarkers="checkbox"
+        getCellContent={getCellContent}
+        // getCellContent={getCellContentMangled}
+        onCellEdited={onCellEdited}
+        columns={columns}
+        rows={data.length}
+        // rows={5000}
+        rangeSelect="multi-cell"
+        // rangeSelect="rect"
+        // onColumnResize={onColumnResize}
+        gridSelection={selection}
+        onGridSelectionChange={setSelection}
+        getCellsForSelection={true}
+        // onRowMoved={(s, e) => {}}
+        // onColumnMoved={(s, e) => {}}
+        onColumnMoved={onColMoved}
+        // onPaste={true}
+        onPaste={(target, value) => {
+          window.alert(JSON.stringify({ target, value }));
+          return true;
+        }}
+        isOutsideClick={() => console.log("Outside click")}
+
+        // onDragStart={(e) => {
+        //   e.setData("text/plain", "Drag data here!");
+        // }}
+        // onPaste={(target, values) => {
+        //   console.log("[onPaste] target: ", target);
+        //   console.log("[onPaste] values: ", values);
+
+        //   // return false;
+        //   return true;
+        // }}
+        // // onFinishedEditing={(cell, newValue) => {
+        // //   console.log("onFinishedEditing ran ... ");
+        // //   console.log("cell: ", cell);
+        // //   console.log("newValue: ", newValue);
+        // // }}
+        // rightElement={
+        //   // <ColumnAddButton>
+        //   <button onClick={() => window.alert("Add a column!")}>+</button>
+        //   // </ColumnAddButton>
+        // }
+        // rightElementProps={{
+        //   fill: false,
+        //   sticky: false,
+        // }}
+        // onCellContextMenu={(cell, e) => {
+        //   console.log("[ctxMenu] cell: ", cell);
+        //   console.log("[ctxMenu] e: ", e);
+        //   console.log("[ctxMenu] data: ", getCellContent(cell).data);
+        //   e.preventDefault();
+        // }}
+        // verticalBorder={true}
+        // spanRangeBehavior="allow partial"
+        // theme={(x) => {
+        //   console.log("theme: ", x);
+        //   return {
+        //     bgCell: "pink",
+        //   };
+        // }}
+      />
+    </div>
     // <DataEditor
     //   // {...defaultProps}
     //   getCellContent={getCellContent}
