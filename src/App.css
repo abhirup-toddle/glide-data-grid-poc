@@ -40,3 +40,9 @@
 .read-the-docs {
   color: #888;
 }
+
+.poc-btn {
+  background-color: lightblue;
+  margin: 0 2px 2px 0;
+  border-radius: 4px;
+}
