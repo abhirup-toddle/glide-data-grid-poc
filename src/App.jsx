@@ -9,10 +9,7 @@ import {
 import {
   generateRandomObjectsArray,
   getCellsInRange,
-  // getSortDirection,
-  isSorted,
   sortData,
-  toggleSortDirection,
 } from "./utils/mockGenerator";
 import { _columns } from "./utils/starterData";
 
@@ -25,8 +22,6 @@ function App() {
     columns: CompactSelection.empty(),
     rows: CompactSelection.empty(),
   });
-  const [isMetaKeyPressed, setIsMetaKeyPressed] = useState(false);
-  const [selectedCells, setSelectedCells] = useState([]);
 
   function getSelectionRange(selection, type) {
     if (!selection[type]) return [];
@@ -62,7 +57,7 @@ function App() {
   function extractSelectedColumns(selection) {
     // if(!obj.) return [];
     if (!selection.columns) return [];
-    console.log(selection.columns.items);
+    // console.log(selection.columns.items);
 
     //get the first index of every array in items
 
@@ -101,6 +96,11 @@ function App() {
         data[row][key] = "bulk row update";
       });
     });
+
+    const cellsIndexesUpdated = selectedRows.map((row) => {
+      return [row, 0];
+    });
+    // console.log("[row] cellsIndexesUpdated: ", cellsIndexesUpdated);
     setData([...data]);
   }
 
@@ -108,42 +108,34 @@ function App() {
     const selectedCells = extractXY(selection);
     const cellsInRect = getCellsInRange(selection);
 
-    // const set = new Set(...selectedCells, ...cellsInRect);
+    const combinedCells = [...selectedCells, ...cellsInRect];
 
-    // console.log("set: ", set);
-    // console.log("[combined] selectedCells: ", Array.isArray(selectedCells));
-    // console.log("[combined] cellsInRect: ", Array.isArray(cellsInRect));
-
-    // console.log("selectedCells: ", selectedCells);
-    [...selectedCells, ...cellsInRect].forEach((cell) => {
+    combinedCells.forEach((cell) => {
       const { x, y } = cell;
       const indexes = ["name", "company", "email", "phone"];
-      // console.log("x, y: ", x, y);
       const key = indexes[x];
       data[y][key] = "bulk update";
-      // console.log("cell: ", cell);
     });
-    // selectedCells.forEach((cell) => {
-    //   const { x, y } = cell;
-    //   const indexes = ["name", "company", "email", "phone"];
-    //   console.log("x, y: ", x, y);
-    //   const key = indexes[x];
-    //   data[y][key] = "bulk update";
-    //   // console.log("cell: ", cell);
-    // });
+    const cellsIndexesUpdated = combinedCells.map((cell) => {
+      return [cell.y, cell.x];
+    });
+    // console.log("[mixed] cellsIndexesUpdated: ", cellsIndexesUpdated);
+
     setData([...data]);
   }
 
   function bulkUpdateColumns() {
-    // const selectedColumns = extractSelectedColumns(selection);
     const selectedColumns = getSelectionRange(selection, "columns");
-    // console.log("selectedColumns: ", selectedColumns);
-
     selectedColumns.forEach((col) => {
       const indexes = ["name", "company", "email", "phone"];
       data.forEach((row, i) => {
         row[indexes[col]] = "bulk col update";
       });
+
+      const cellsIndexesUpdated = data.map((row, i) => {
+        return [i, col];
+      });
+      // console.log("[col] cellsIndexesUpdated: ", cellsIndexesUpdated);
 
       setData([...data]);
     });
@@ -151,16 +143,6 @@ function App() {
 
   const getSelectedCells = useCallback(() => {
     console.log("selection: ", selection);
-    // const cols = extractSelectedColumns(selection);
-    // console.log("cols: ", cols);
-    // if (cols.length === 0) {
-    //   console.log("selected Cells: ", extractXY(selection));
-    // } else {
-    //   // if columns are selected
-    //   console.log("selected columns: ", cols);
-    //   // const numRows = data.length;
-    //   bulkUpdateColumn();
-    // }
   }, [selection]);
 
   const getCellContent = useCallback(
@@ -185,79 +167,39 @@ function App() {
     [data]
   );
 
-  useEffect(() => {
-    const handleKeyDown = (e) => {
-      if (e.key === "Meta" || e.key === "Control") {
-        // console.log("Control key pressed");
-        setIsMetaKeyPressed(true);
-      } else {
-        setIsMetaKeyPressed(false);
+  const onCellEdited = useCallback(
+    (cell, newValue) => {
+      console.log("onCellEdited ran ... ");
+
+      if (newValue.kind !== GridCellKind.Text) {
+        return;
       }
-    };
 
-    const handleKeyUp = (e) => {
-      if (e.key === "Meta" || e.key === "Control") {
-        setIsMetaKeyPressed(false);
-      }
-    };
+      const indexes = ["name", "company", "email", "phone"];
+      const [col, row] = cell;
+      const key = indexes[col];
+      data[row][key] = newValue.data;
 
-    window.addEventListener("keydown", handleKeyDown);
-    window.addEventListener("keyup", handleKeyUp);
-    return () => {
-      window.removeEventListener("keydown", handleKeyDown);
-      window.removeEventListener("keyup", handleKeyUp);
-    };
-  }, []);
-
-  const onCellEdited = useCallback((cell, newValue) => {
-    console.log("onCellEdited ran ... ");
-
-    if (newValue.kind !== GridCellKind.Text) {
-      // we only have text cells, might as well just die here.
-      return;
-    }
-
-    const indexes = ["name", "company", "email", "phone"];
-    const [col, row] = cell;
-    const key = indexes[col];
-    data[row][key] = newValue.data;
-
-    console.log("data: ", data[row][key]);
-    console.log("newValue.data: ", newValue.data);
-    setData([...data]);
-  }, []);
+      // console.log("data: ", data[row][key]);
+      console.log("[onCellEdited] [row, col]: ", [row, col]);
+      console.log("new data: ", newValue.data);
+      setData([...data]);
+    },
+    [data]
+  );
 
   const handleColumnHeaderClick = useCallback(
     (colIndex, e) => {
-      console.log("click registered");
       const col = columns[colIndex].id;
-      // const _isSorted = isSorted(data, col);
-
-      // console.log("isSorted: ", _isSorted);
-      // let direction = _isSorted ? toggleSortDirection(_isSorted) : "asc";
-
-      // const toggledDirection = direction === "asc" ? "desc" : "asc";
-
-      // const directionToSet = isSorted ? toggledDirection : direction;
-      // console.log("[headerClick] columns[colIndex]: ", columns[colIndex].id);
-      // console.log("[headerClick] colIndex: ", colIndex);
-      // console.log("[headerClick] e: ", e);
       setData((prevData) => sortData(prevData, col));
-      // setData(sortData(data, col, "desc"));
-      // console.log("cols: ", columns);
     },
-    [data, columns]
+    [columns]
   );
 
   const updateCells = () => {
     const selectedCells = extractXY(selection);
-    // console.log("selectedCells: ", selectedCells);
-
     const selectedColumns = extractSelectedColumns(selection);
-    // console.log("selectedColumns: ", selectedColumns);
-
     const selectedRows = extractSelectedRows(selection);
-    // console.log("selectedRows: ", selectedRows);
 
     if (selectedCells.length) {
       bulkUpdate();
@@ -272,52 +214,23 @@ function App() {
     <div
       style={{
         position: "relative",
-        // width: 400,
-        // height: 900,
-        // overflow: "auto",
       }}
     >
       <div>
-        {/* <button
-          className="poc-btn"
-          onClick={() => {
-            // console.log("dataEditorRef?.current: ", dataEditorRef?.current);
-            dataEditorRef?.current?.scrollTo(0, 10, "both", "start", "start");
-            dataEditorRef?.current?.appendRow(data.length, false);
-
-            // dataEditorRef?.current?.focus();
-          }}
-        >
-          Scroll to x
-        </button> */}
-        {/* <button className="poc-btn" onClick={setCellValue}>
-          Update Value
-        </button> */}
         <button className="poc-btn colourful-1" onClick={updateCells}>
           Update Cells
         </button>
-        <button
-          className="poc-btn"
-          onClick={() => {
-            // dataEditorRef.current.updateCells([{ cell: [1, 1] }]);
-            // dataEditorRef?.current?.focus([2, 2]);
-            getSelectedCells();
-          }}
-        >
+        <button className="poc-btn" onClick={getSelectedCells}>
           Get Selected Cells
         </button>
       </div>
       <DataEditor
         ref={dataEditorRef}
-        // height={500}
-        // rowHeight={30}
-        // minColumnWidth={200}
         rowMarkers="checkbox"
         getCellContent={getCellContent}
         onCellEdited={onCellEdited}
         columns={columns}
         rows={data.length}
-        // rangeSelect={isMetaKeyPressed ? "multi-cell" : "rect"}
         rangeSelect={"multi-rect"}
         gridSelection={selection}
         onGridSelectionChange={setSelection}
@@ -328,7 +241,6 @@ function App() {
         onPaste={(target, value) => {
           return true;
         }}
-        isOutsideClick={() => console.log("Outside click")}
         onHeaderClicked={handleColumnHeaderClick}
       />
     </div>
