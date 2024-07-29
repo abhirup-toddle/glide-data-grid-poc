@@ -136,6 +136,16 @@ export function generateRandomObjectsArray(count) {
 
 // const randomObjectsArray = generateRandomObjectsArray(5);
 export function sortData(arr, property, direction = "asc") {
+  // console.log("sortData: ", arr, property, direction);
+
+  // direction = toggleSortDirection(direction);
+
+  // const isAlreadySorted = isSorted(arr, property);
+  // // console.log("isAlreadySorted: ", isAlreadySorted);
+  // if (isAlreadySorted) {
+  //   direction = toggleSortDirection(direction);
+  // }
+
   return arr.sort((a, b) => {
     let valueA = a[property];
     let valueB = b[property];
@@ -150,4 +160,52 @@ export function sortData(arr, property, direction = "asc") {
     if (valueA > valueB) return direction === "asc" ? 1 : -1;
     return 0;
   });
+}
+
+// export function isSorted(arr, property) {
+//   for (let i = 0; i < arr.length - 1; i++) {
+//     if (arr[i][property] > arr[i + 1][property]) return false;
+//   }
+//   return true;
+// }
+
+export function isSorted(arr, property) {
+  if (arr.length <= 1) return "asc"; // Arrays of 0 or 1 element are considered sorted ascending
+
+  let ascending = null;
+
+  for (let i = 0; i < arr.length - 1; i++) {
+    const current = arr[i][property];
+    const next = arr[i + 1][property];
+
+    if (current !== next) {
+      if (ascending === null) {
+        ascending = current < next;
+      } else {
+        if ((ascending && current > next) || (!ascending && current < next)) {
+          return false; // Not sorted
+        }
+      }
+    }
+  }
+
+  return ascending ? "asc" : "desc";
+}
+
+// check if sorted in either direction
+
+// export function isSortedInEitherDirection(arr, property) {
+//   return isSorted(arr, property) || isSorted(arr, property, "desc");
+// }
+
+// get sort direction
+// export function getSortDirection(arr, property) {
+//   if (isSorted(arr, property)) {
+//     return "asc";
+//   }
+//   return "desc";
+// }
+
+export function toggleSortDirection(direction) {
+  return direction === "asc" ? "desc" : "asc";
 }

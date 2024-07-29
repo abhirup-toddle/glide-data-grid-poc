@@ -46,3 +46,15 @@
   margin: 0 2px 2px 0;
   border-radius: 4px;
 }
+
+.colourful-1 {
+  background-color: rgb(255, 205, 129);
+}
+
+.colourful-2 {
+  background-color: rgb(0, 255, 247);
+}
+
+.colourful-3 {
+  background-color: rgb(100, 224, 81);
+}

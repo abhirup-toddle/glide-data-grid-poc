@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import "./App.css";
 import "@glideapps/glide-data-grid/dist/index.css";
 import {
@@ -6,7 +6,13 @@ import {
   DataEditor,
   GridCellKind,
 } from "@glideapps/glide-data-grid";
-import { generateRandomObjectsArray } from "./utils/mockGenerator";
+import {
+  generateRandomObjectsArray,
+  // getSortDirection,
+  isSorted,
+  sortData,
+  toggleSortDirection,
+} from "./utils/mockGenerator";
 import { _columns } from "./utils/starterData";
 
 function App() {
@@ -19,6 +25,7 @@ function App() {
     rows: CompactSelection.empty(),
   });
   const [isMetaKeyPressed, setIsMetaKeyPressed] = useState(false);
+  const [selectedCells, setSelectedCells] = useState([]);
 
   function getSelectionRange(selection, type) {
     if (!selection[type]) return [];
@@ -203,10 +210,46 @@ function App() {
     setData([...data]);
   }, []);
 
-  const handleColumnHeaderClick = useCallback((colIndex, e) => {
-    // console.log("[headerClick] colIndex: ", colIndex);
-    // console.log("[headerClick] e: ", e);
-  }, []);
+  const handleColumnHeaderClick = useCallback(
+    (colIndex, e) => {
+      console.log("click registered");
+      const col = columns[colIndex].id;
+      const _isSorted = isSorted(data, col);
+
+      console.log("isSorted: ", _isSorted);
+      let direction = _isSorted ? toggleSortDirection(_isSorted) : "asc";
+
+      // const toggledDirection = direction === "asc" ? "desc" : "asc";
+
+      // const directionToSet = isSorted ? toggledDirection : direction;
+      // console.log("[headerClick] columns[colIndex]: ", columns[colIndex].id);
+      // console.log("[headerClick] colIndex: ", colIndex);
+      // console.log("[headerClick] e: ", e);
+      setData((prevData) => sortData(prevData, col));
+      // setData(sortData(data, col, "desc"));
+      // console.log("cols: ", columns);
+    },
+    [data, columns]
+  );
+
+  const updateCells = () => {
+    const selectedCells = extractXY(selection);
+    // console.log("selectedCells: ", selectedCells);
+
+    const selectedColumns = extractSelectedColumns(selection);
+    // console.log("selectedColumns: ", selectedColumns);
+
+    const selectedRows = extractSelectedRows(selection);
+    // console.log("selectedRows: ", selectedRows);
+
+    if (selectedCells.length) {
+      bulkUpdate();
+    } else if (selectedColumns.length) {
+      bulkUpdateColumns();
+    } else if (selectedRows.length) {
+      bulkUpdateRows();
+    }
+  };
 
   return (
     <div
@@ -233,14 +276,8 @@ function App() {
         {/* <button className="poc-btn" onClick={setCellValue}>
           Update Value
         </button> */}
-        <button className="poc-btn" onClick={bulkUpdate}>
-          Bulk update
-        </button>
-        <button className="poc-btn" onClick={bulkUpdateColumns}>
-          Bulk update columns
-        </button>
-        <button className="poc-btn" onClick={bulkUpdateRows}>
-          Bulk update rows
+        <button className="poc-btn colourful-1" onClick={updateCells}>
+          Update Cells
         </button>
         <button
           className="poc-btn"
@@ -271,50 +308,10 @@ function App() {
         // onColumnMoved={(s, e) => {}}
         // onPaste={true}
         onPaste={(target, value) => {
-          // window.alert(JSON.stringify({ target, value }));
           return true;
         }}
         isOutsideClick={() => console.log("Outside click")}
         onHeaderClicked={handleColumnHeaderClick}
-
-        // onDragStart={(e) => {
-        //   e.setData("text/plain", "Drag data here!");
-        // }}
-        // onPaste={(target, values) => {
-        //   console.log("[onPaste] target: ", target);
-        //   console.log("[onPaste] values: ", values);
-
-        //   // return false;
-        //   return true;
-        // }}
-        // // onFinishedEditing={(cell, newValue) => {
-        // //   console.log("onFinishedEditing ran ... ");
-        // //   console.log("cell: ", cell);
-        // //   console.log("newValue: ", newValue);
-        // // }}
-        // rightElement={
-        //   // <ColumnAddButton>
-        //   <button className="poc-btn" onClick={() => window.alert("Add a column!")}>+</button>
-        //   // </ColumnAddButton>
-        // }
-        // rightElementProps={{
-        //   fill: false,
-        //   sticky: false,
-        // }}
-        // onCellContextMenu={(cell, e) => {
-        //   console.log("[ctxMenu] cell: ", cell);
-        //   console.log("[ctxMenu] e: ", e);
-        //   console.log("[ctxMenu] data: ", getCellContent(cell).data);
-        //   e.preventDefault();
-        // }}
-        // verticalBorder={true}
-        // spanRangeBehavior="allow partial"
-        // theme={(x) => {
-        //   console.log("theme: ", x);
-        //   return {
-        //     bgCell: "pink",
-        //   };
-        // }}
       />
     </div>
   );
