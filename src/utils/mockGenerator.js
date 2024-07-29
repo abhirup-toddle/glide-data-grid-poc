@@ -209,3 +209,84 @@ export function isSorted(arr, property) {
 export function toggleSortDirection(direction) {
   return direction === "asc" ? "desc" : "asc";
 }
+
+export function getRectRange(range) {
+  if (!range) {
+    return [];
+  }
+  const { x, y, width, height } = range;
+  if (width > 1 || height > 1) {
+    return [
+      [x, x + width - 1],
+      [y, y + height - 1],
+    ];
+  }
+  return [];
+}
+// export function getRectRange(selection) {
+//   if (!selection.current.range) {
+//     return [];
+//   }
+//   const { x, y, width, height } = selection.current.range;
+//   if (width > 1 || height > 1) {
+//     return [
+//       [x, x + width - 1],
+//       [y, y + height - 1],
+//     ];
+//   }
+//   return [];
+// }
+
+// export function getCellsInRange(selection) {
+//   const range = getRectRange(selection?.current?.range);
+
+//   if (!range.length) {
+//     return [];
+//   }
+//   const result = [];
+//   for (let i = range[0][0]; i <= range[0][1]; i++) {
+//     for (let j = range[1][0]; j <= range[1][1]; j++) {
+//       result.push([i, j]);
+//     }
+//   }
+//   return result;
+// }
+export function getCellsInRange(selection) {
+  const range = getRectRange(selection?.current?.range);
+
+  const ranges = selection?.current?.rangeStack.map((range) => {
+    return getRectRange(range);
+  });
+
+  // console.log("ranges: ", ranges);
+
+  const result = [];
+
+  const combinedRanges = [range, ...ranges].filter((r) => r.length);
+
+  if (!combinedRanges.length) {
+    return [];
+  }
+
+  combinedRanges.forEach((range) => {
+    for (let i = range[0][0]; i <= range[0][1]; i++) {
+      for (let j = range[1][0]; j <= range[1][1]; j++) {
+        // result.push([i, j]);
+        result.push({ x: i, y: j });
+      }
+    }
+  });
+  return result;
+}
+
+// if (!range.length) {
+//   return [];
+// }
+// const result = [];
+// for (let i = range[0][0]; i <= range[0][1]; i++) {
+//   for (let j = range[1][0]; j <= range[1][1]; j++) {
+//     result.push([i, j]);
+//   }
+// }
+// return result;
+// }

@@ -8,6 +8,7 @@ import {
 } from "@glideapps/glide-data-grid";
 import {
   generateRandomObjectsArray,
+  getCellsInRange,
   // getSortDirection,
   isSorted,
   sortData,
@@ -105,8 +106,18 @@ function App() {
 
   function bulkUpdate() {
     const selectedCells = extractXY(selection);
-    console.log("selectedCells: ", selectedCells);
-    selectedCells.forEach((cell) => {
+    const cellsInRect = getCellsInRange(selection);
+
+    // const set = new Set(...selectedCells, ...cellsInRect);
+
+    // console.log("set: ", set);
+    console.log("[combined] selectedCells: ", selectedCells[0]);
+    console.log("[combined] cellsInRect: ", cellsInRect[0]);
+    // console.log("[combined] selectedCells: ", Array.isArray(selectedCells));
+    // console.log("[combined] cellsInRect: ", Array.isArray(cellsInRect));
+
+    // console.log("selectedCells: ", selectedCells);
+    [...selectedCells, ...cellsInRect].forEach((cell) => {
       const { x, y } = cell;
       const indexes = ["name", "company", "email", "phone"];
       console.log("x, y: ", x, y);
@@ -114,6 +125,14 @@ function App() {
       data[y][key] = "bulk update";
       // console.log("cell: ", cell);
     });
+    // selectedCells.forEach((cell) => {
+    //   const { x, y } = cell;
+    //   const indexes = ["name", "company", "email", "phone"];
+    //   console.log("x, y: ", x, y);
+    //   const key = indexes[x];
+    //   data[y][key] = "bulk update";
+    //   // console.log("cell: ", cell);
+    // });
     setData([...data]);
   }
 
