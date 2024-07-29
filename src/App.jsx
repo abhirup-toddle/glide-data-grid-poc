@@ -75,10 +75,10 @@ function App() {
 
   function extractSelectedRows(selection) {
     if (!selection.rows) return [];
-    console.log(
-      "[extract selectedRows] selection.rows.items: ",
-      selection.rows.items
-    );
+    // console.log(
+    //   "[extract selectedRows] selection.rows.items: ",
+    //   selection.rows.items
+    // );
 
     //get the first index of every array in items
 
@@ -111,8 +111,6 @@ function App() {
     // const set = new Set(...selectedCells, ...cellsInRect);
 
     // console.log("set: ", set);
-    console.log("[combined] selectedCells: ", selectedCells[0]);
-    console.log("[combined] cellsInRect: ", cellsInRect[0]);
     // console.log("[combined] selectedCells: ", Array.isArray(selectedCells));
     // console.log("[combined] cellsInRect: ", Array.isArray(cellsInRect));
 
@@ -120,7 +118,7 @@ function App() {
     [...selectedCells, ...cellsInRect].forEach((cell) => {
       const { x, y } = cell;
       const indexes = ["name", "company", "email", "phone"];
-      console.log("x, y: ", x, y);
+      // console.log("x, y: ", x, y);
       const key = indexes[x];
       data[y][key] = "bulk update";
       // console.log("cell: ", cell);
@@ -139,7 +137,7 @@ function App() {
   function bulkUpdateColumns() {
     // const selectedColumns = extractSelectedColumns(selection);
     const selectedColumns = getSelectionRange(selection, "columns");
-    console.log("selectedColumns: ", selectedColumns);
+    // console.log("selectedColumns: ", selectedColumns);
 
     selectedColumns.forEach((col) => {
       const indexes = ["name", "company", "email", "phone"];
@@ -233,10 +231,10 @@ function App() {
     (colIndex, e) => {
       console.log("click registered");
       const col = columns[colIndex].id;
-      const _isSorted = isSorted(data, col);
+      // const _isSorted = isSorted(data, col);
 
-      console.log("isSorted: ", _isSorted);
-      let direction = _isSorted ? toggleSortDirection(_isSorted) : "asc";
+      // console.log("isSorted: ", _isSorted);
+      // let direction = _isSorted ? toggleSortDirection(_isSorted) : "asc";
 
       // const toggledDirection = direction === "asc" ? "desc" : "asc";
 
@@ -319,7 +317,8 @@ function App() {
         onCellEdited={onCellEdited}
         columns={columns}
         rows={data.length}
-        rangeSelect={isMetaKeyPressed ? "multi-cell" : "rect"}
+        // rangeSelect={isMetaKeyPressed ? "multi-cell" : "rect"}
+        rangeSelect={"multi-rect"}
         gridSelection={selection}
         onGridSelectionChange={setSelection}
         getCellsForSelection={true}
