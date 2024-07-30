@@ -154,15 +154,37 @@ function generateRandomObject() {
 
   return {
     name,
-    company,
+    company: generateRandomNumberBetween().toString(),
     email,
     phone,
   };
 }
 
-export function generateRandomObjectsArray(count) {
+export function generateSchoolObject() {
+  const name = generateRandomName();
+  const score = generateRandomNumberBetween().toString();
+  const emailProvider = generateRandomEmailProvider();
+  const email = `${name.split(" ").join("").toLowerCase()}@${emailProvider}`;
+  const project = getRandomProject();
+
+  return {
+    name,
+    score: score.toString(),
+    email,
+    project,
+  };
+}
+
+export function generateRandomObjectsArray(count = 20) {
   return generateRandomArray(count, generateRandomObject);
 }
+// export function generateRandomObjectsArray(
+//   count = 20,
+//   generatorFunction = generateRandomObject
+// ) {
+//   // return generateRandomArray(count, generateRandomObject);
+//   return generateRandomArray(count, generatorFunction);
+// }
 
 // const randomObjectsArray = generateRandomObjectsArray(5);
 export function sortData(arr, property, direction = "asc") {
