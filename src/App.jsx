@@ -8,16 +8,22 @@ import {
 } from "@glideapps/glide-data-grid";
 import {
   generateRandomObjectsArray,
+  generateSchoolObject,
   getCellsInRange,
   sortData,
 } from "./utils/mockGenerator";
-import { _columns } from "./utils/starterData";
+import { _columns, _data, _scoreColumns } from "./utils/starterData";
 
 function App() {
   // const [data, setData] = useState(_data);
   const dataEditorRef = useRef(null);
   const [data, setData] = useState(() => generateRandomObjectsArray(20));
-  const [columns, setColumns] = useState(_columns);
+  // const [data, setData] = useState(() =>
+  //   generateRandomObjectsArray(20, generateSchoolObject)
+  // );
+  // const [data, setData] = useState(_data);
+  // const [columns, setColumns] = useState(_columns);
+  const [columns, setColumns] = useState(_scoreColumns);
   const [currentSelection, setCurrentSelection] = useState(null);
 
   const [selection, setSelection] = useState({
@@ -157,7 +163,10 @@ function App() {
     // console.log("[getSelectedCells] selection: ", selection);
     if (selection.columns.items.length) {
       // console.log("selected columns: ", selection.columns.items);
+      const selectedColumns = getSelectionRange(selection, "columns");
+      console.log("selected columns: ", selectedColumns);
       setCurrentSelection(selection.columns.items);
+      // setCurrentSelection(selection.columns.items);
       return selection.columns.items;
     } else if (selection.rows.items.length) {
       // console.log("selected rows: ", selection.rows.items);
@@ -177,7 +186,20 @@ function App() {
     //if columns are selected, only check for columns
     //if rows are selected, only check for rows
     //if cells are selected, check for cells
-  }, [selection]);
+  }, [selection, currentSelection, getCombinedCells]);
+
+  const getCellBackground = (d) => {
+    if (Number.isNaN(d)) return "";
+    //over 90, green
+    //over 70, yellow
+    //over 30, orange
+    //30 or less, red
+
+    if (d > 90) return "green";
+    else if (d > 70) return "yellow";
+    else if (d > 30) return "orange";
+    else return "red";
+  };
 
   const getCellContent = useCallback(
     (cell) => {
@@ -186,19 +208,27 @@ function App() {
 
       // dumb but simple way to do this
       const indexes = ["name", "company", "email", "phone"];
+      const _col = columns[col].id;
       const d = dataRow[indexes[col]];
+
       return {
         kind: GridCellKind.Text,
         allowOverlay: true,
         displayData: d,
-        data: d,
+        data: d.toString(),
         readonly: false,
+        themeOverride: {
+          // bgCell: d === "ProTech" ? "red" : "",
+          bgCell: _col === "score" ? getCellBackground(d) : "",
+          // borderColor: "pink",
+          // drilldownBorder: "blue",
+        },
         // cursor: "pointer",
         // faded: true,
         // copyData: d,
       };
     },
-    [data]
+    [data, columns]
   );
 
   const getCellData = useCallback(
@@ -253,6 +283,36 @@ function App() {
     }
   };
 
+  useEffect(() => {
+    // check for paste event
+
+    const handlePaste = (e) => {
+      const selectedCols = getSelectionRange(selection, "columns");
+      const selectedRows = getSelectionRange(selection, "rows");
+
+      // console.log("selectedCols: ", selectedCols);
+      // console.log("selectedRows: ", selectedRows);
+      // console.log("cliboardData", e.clipboardData.getData("text"));
+      const clipboardData = e.clipboardData.getData("text");
+
+      if (selectedCols.length > 1) {
+        // console.log("paste event: ", e);
+        // console.log("handle paste here");
+        bulkUpdateColumns(clipboardData);
+      } else if (selectedRows.length > 1) {
+        bulkUpdateRows(clipboardData);
+        // console.log("paste event: ", e);
+        // console.log("handle paste here");
+      }
+    };
+
+    window.addEventListener("paste", handlePaste);
+
+    return () => {
+      window.removeEventListener("paste", handlePaste);
+    };
+  }, [selection]);
+
   return (
     <div
       style={{
@@ -260,7 +320,7 @@ function App() {
       }}
     >
       <div>
-        <button className="poc-btn colourful-1" onClick={updateCells}>
+        <button className="poc-btn colourful-1" onClick={() => updateCells()}>
           Update Cells
         </button>
         <button className="poc-btn" onClick={getSelectedCells}>
@@ -287,11 +347,17 @@ function App() {
           console.log("cellData: ", cellData);
         }}
         onPaste={(target, value) => {
-          // console.log("get combined cells: ", getSelectedCells());
+          console.log("get combined cells: ", getSelectedCells());
           const selectedCellsLength = getSelectedCells().length;
+          const _value = value.pop()[0];
 
-          if (selectedCellsLength > 1) {
-            const _value = value.pop()[0];
+          if (selection.columns.items.length) {
+            bulkUpdateColumns(_value);
+            return false;
+          } else if (selection.rows.items.length) {
+            bulkUpdateRows(_value);
+            return false;
+          } else if (selectedCellsLength > 1) {
             updateCells(_value);
             return false;
           }
