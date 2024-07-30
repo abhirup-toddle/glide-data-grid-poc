@@ -18,6 +18,8 @@ function App() {
   const dataEditorRef = useRef(null);
   const [data, setData] = useState(() => generateRandomObjectsArray(20));
   const [columns, setColumns] = useState(_columns);
+  const [currentSelection, setCurrentSelection] = useState(null);
+
   const [selection, setSelection] = useState({
     columns: CompactSelection.empty(),
     rows: CompactSelection.empty(),
@@ -84,7 +86,7 @@ function App() {
     return result;
   }
 
-  function bulkUpdateRows() {
+  function bulkUpdateRows(value) {
     // const selectedRows = extractSelectedRows(selection);
     // console.log("selectedRows: ", selectedRows);
 
@@ -93,7 +95,7 @@ function App() {
     selectedRows.forEach((row) => {
       const indexes = ["name", "company", "email", "phone"];
       indexes.forEach((key) => {
-        data[row][key] = "bulk row update";
+        data[row][key] = value ?? "bulk row update";
       });
     });
 
@@ -104,17 +106,27 @@ function App() {
     setData([...data]);
   }
 
-  function bulkUpdate() {
+  function getCombinedCells() {
     const selectedCells = extractXY(selection);
     const cellsInRect = getCellsInRange(selection);
-
     const combinedCells = [...selectedCells, ...cellsInRect];
+    console.log("[mixed] combinedCells: ", combinedCells);
+    return combinedCells;
+  }
+
+  function bulkUpdate(value) {
+    console.log("[bulkUpdate] value: ", value);
+    // const selectedCells = extractXY(selection);
+    // const cellsInRect = getCellsInRange(selection);
+
+    // const combinedCells = [...selectedCells, ...cellsInRect];
+    const combinedCells = getCombinedCells();
 
     combinedCells.forEach((cell) => {
       const { x, y } = cell;
       const indexes = ["name", "company", "email", "phone"];
       const key = indexes[x];
-      data[y][key] = "bulk update";
+      data[y][key] = value ?? "bulk update";
     });
     const cellsIndexesUpdated = combinedCells.map((cell) => {
       return [cell.y, cell.x];
@@ -124,12 +136,12 @@ function App() {
     setData([...data]);
   }
 
-  function bulkUpdateColumns() {
+  function bulkUpdateColumns(value) {
     const selectedColumns = getSelectionRange(selection, "columns");
     selectedColumns.forEach((col) => {
       const indexes = ["name", "company", "email", "phone"];
       data.forEach((row, i) => {
-        row[indexes[col]] = "bulk col update";
+        row[indexes[col]] = value ?? "bulk col update";
       });
 
       const cellsIndexesUpdated = data.map((row, i) => {
@@ -142,7 +154,29 @@ function App() {
   }
 
   const getSelectedCells = useCallback(() => {
-    console.log("selection: ", selection);
+    // console.log("[getSelectedCells] selection: ", selection);
+    if (selection.columns.items.length) {
+      // console.log("selected columns: ", selection.columns.items);
+      setCurrentSelection(selection.columns.items);
+      return selection.columns.items;
+    } else if (selection.rows.items.length) {
+      // console.log("selected rows: ", selection.rows.items);
+      setCurrentSelection(selection.rows.items);
+      return selection.rows.items;
+    } else if (selection.current.range) {
+      // console.log("selected cells: ", selection.current.range);
+      const combinedCells = getCombinedCells();
+      setCurrentSelection(combinedCells);
+      return combinedCells;
+    }
+    return [];
+
+    // const selectedColumns = getSelectionRange(selection, "columns");
+    // const selectedRows = getSelectionRange(selection, "rows");
+
+    //if columns are selected, only check for columns
+    //if rows are selected, only check for rows
+    //if cells are selected, check for cells
   }, [selection]);
 
   const getCellContent = useCallback(
@@ -167,10 +201,18 @@ function App() {
     [data]
   );
 
+  const getCellData = useCallback(
+    (cell) => {
+      const [col, row] = cell;
+      const dataRow = data[row];
+      const indexes = ["name", "company", "email", "phone"];
+      return dataRow[indexes[col]];
+    },
+    [data]
+  );
+
   const onCellEdited = useCallback(
     (cell, newValue) => {
-      console.log("onCellEdited ran ... ");
-
       if (newValue.kind !== GridCellKind.Text) {
         return;
       }
@@ -181,8 +223,8 @@ function App() {
       data[row][key] = newValue.data;
 
       // console.log("data: ", data[row][key]);
-      console.log("[onCellEdited] [row, col]: ", [row, col]);
-      console.log("new data: ", newValue.data);
+      // console.log("[onCellEdited] [row, col]: ", [row, col]);
+      // console.log("[onCellEdited] new data: ", newValue.data);
       setData([...data]);
     },
     [data]
@@ -196,17 +238,18 @@ function App() {
     [columns]
   );
 
-  const updateCells = () => {
+  const updateCells = (value) => {
+    console.log("[updateCells] value: ", value);
     const selectedCells = extractXY(selection);
     const selectedColumns = extractSelectedColumns(selection);
     const selectedRows = extractSelectedRows(selection);
 
     if (selectedCells.length) {
-      bulkUpdate();
+      bulkUpdate(value);
     } else if (selectedColumns.length) {
-      bulkUpdateColumns();
+      bulkUpdateColumns(value);
     } else if (selectedRows.length) {
-      bulkUpdateRows();
+      bulkUpdateRows(value);
     }
   };
 
@@ -238,10 +281,25 @@ function App() {
         // onRowMoved={(s, e) => {}}
         // onColumnMoved={(s, e) => {}}
         // onPaste={true}
+        onFillPattern={(e) => {
+          console.log("fill pattern: ", e);
+          const cellData = getCellData([e.patternSource.x, e.patternSource.y]);
+          console.log("cellData: ", cellData);
+        }}
         onPaste={(target, value) => {
+          // console.log("get combined cells: ", getSelectedCells());
+          const selectedCellsLength = getSelectedCells().length;
+
+          if (selectedCellsLength > 1) {
+            const _value = value.pop()[0];
+            updateCells(_value);
+            return false;
+          }
+
           return true;
         }}
         onHeaderClicked={handleColumnHeaderClick}
+        fillHandle={true}
       />
     </div>
   );
