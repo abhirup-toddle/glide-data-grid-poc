@@ -13,8 +13,20 @@ import {
   sortData,
 } from "./utils/mockGenerator";
 import { _columns, _data, _scoreColumns } from "./utils/starterData";
+import { useLayer } from "react-laag";
+
+const zeroBounds = {
+  left: 0,
+  top: 0,
+  width: 0,
+  height: 0,
+  bottom: 0,
+  right: 0,
+};
 
 function App() {
+  const [tooltip, setTooltip] = useState();
+  const timeoutRef = useRef(0);
   // const [data, setData] = useState(_data);
   const dataEditorRef = useRef(null);
   const [data, setData] = useState(() => generateRandomObjectsArray(20));
@@ -313,6 +325,45 @@ function App() {
     };
   }, [selection]);
 
+  const onItemHovered = useCallback((args) => {
+    if (args.kind === "cell") {
+      window.clearTimeout(timeoutRef.current);
+      setTooltip(undefined);
+      timeoutRef.current = window.setTimeout(() => {
+        setTooltip({
+          // val: `Tooltip for ${args.location[0]}, ${args.location[1]}`,
+          val: `${getCellData(args.location)} some more text here`,
+          bounds: {
+            // translate to react-laag types
+            left: args.bounds.x,
+            top: args.bounds.y,
+            width: args.bounds.width,
+            height: args.bounds.height,
+            right: args.bounds.x + args.bounds.width,
+            bottom: args.bounds.y + args.bounds.height,
+          },
+        });
+      }, 400);
+    } else {
+      window.clearTimeout(timeoutRef.current);
+      timeoutRef.current = 0;
+      setTooltip(undefined);
+    }
+  }, []);
+
+  useEffect(() => () => window.clearTimeout(timeoutRef.current), []);
+
+  const isOpen = tooltip !== undefined;
+  const { renderLayer, layerProps } = useLayer({
+    isOpen,
+    triggerOffset: 4,
+    auto: true,
+    container: "portal",
+    trigger: {
+      getBounds: () => tooltip?.bounds ?? zeroBounds,
+    },
+  });
+
   return (
     <div
       style={{
@@ -366,7 +417,30 @@ function App() {
         }}
         onHeaderClicked={handleColumnHeaderClick}
         fillHandle={true}
+        // onItemHovered={(e) => {
+        //   if (e.kind === "cell" || e.kind === "header") {
+        //     console.log("[hovered] : ", e);
+        //   }
+        // }}
+        onItemHovered={onItemHovered}
       />
+      {isOpen &&
+        renderLayer(
+          <div
+            {...layerProps}
+            style={{
+              ...layerProps.style,
+              padding: "8px 12px",
+              color: "white",
+              font: "500 13px Inter",
+              backgroundColor: "rgba(0, 0, 0, 0.85)",
+              borderRadius: "4px",
+              fontFamily: "Roboto",
+            }}
+          >
+            {tooltip.val}
+          </div>
+        )}
     </div>
   );
 }
