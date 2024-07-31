@@ -1,0 +1,68 @@
+/* ScrollableTable.css */
+:root {
+  --table-width: 1000px;
+  --header-height: 50px;
+}
+
+.table-container {
+  width: var(--table-width);
+  height: 200px;
+  overflow: auto;
+}
+
+.scrollable-table {
+  width: max-content;
+  border-collapse: collapse;
+  /* border-collapse: separate; */
+}
+
+.scrollable-table th,
+.scrollable-table td {
+  border: 1px solid #ccc;
+  padding: 8px;
+  text-align: left;
+  position: relative;
+}
+
+.scrollable-table thead {
+  position: sticky;
+  top: 0px;
+  /* background-color: green; */
+  /* opacity: 1; */
+  z-index: 1;
+  /* display: flex; */
+  justify-content: center;
+  align-items: center;
+  background-color: #f1f1f1;
+}
+
+.resize-handle {
+  position: absolute;
+  right: 0px;
+  top: 0;
+  width: 10px;
+  height: 100%;
+  cursor: col-resize;
+  /* background-color: pink; */
+}
+
+.synced-scroll {
+  /* background-color: green; */
+  width: var(--table-width);
+  /* height: 200px; */
+  /* overflow-x: auto;
+  overflow-y: hidden;
+  white-space: nowrap;
+  border: 1px solid #ccc; */
+  scrollbar-width: none;
+  border-bottom: none;
+}
+
+.synced-scroll-item {
+  background-color: #f1f1f1;
+  display: inline-block;
+  height: 100%;
+  padding: 8px;
+  text-align: center;
+  border-right: 1px solid #ccc;
+}
