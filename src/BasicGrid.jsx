@@ -13,6 +13,7 @@ const BasicGrid = () => {
   const [columns, setColumns] = useState(basic_columns);
   const containerRef = useRef(null);
   const gridRef = useRef(null);
+  const syncedHeaderRef = useRef(null);
 
   const getCellContent = useCallback((cell) => {
     const [col, row] = cell;
@@ -55,21 +56,26 @@ const BasicGrid = () => {
   return (
     <div className="main-container">
       <h1>Basic Grid</h1>
-      <div className="synced-header">
-        {columns.map((col) => (
-          <div
-            key={col.title}
-            style={{ width: col.width }}
-            className="header-item"
-          >
-            {col.title}
-          </div>
-        ))}
+      <div className="synced-header" ref={syncedHeaderRef}>
+        {columns.map(
+          (col) => (
+            console.log(col.width),
+            (
+              <div
+                key={col.title}
+                style={{ minWidth: col.width ?? "150px" }}
+                className="header-item"
+              >
+                {col.title}
+              </div>
+            )
+          )
+        )}
       </div>
       <div className="basic-grid-container" ref={containerRef}>
         <DataEditor
           ref={gridRef}
-          rowMarkers="number"
+          // rowMarkers="number"
           headerHeight={30}
           columns={columns}
           smoothScrollX={true}
