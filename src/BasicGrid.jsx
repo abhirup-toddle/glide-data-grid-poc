@@ -32,6 +32,15 @@ const BasicGrid = () => {
 
   const onColumnResize = useCallback((cell, width) => {
     console.log("col resized: ", cell.title, width);
+
+    setColumns((prev) => {
+      return prev.map((col) => {
+        if (col.id === cell.id) {
+          return { ...col, width };
+        }
+        return col;
+      });
+    });
   }, []);
 
   return (
@@ -53,7 +62,11 @@ const BasicGrid = () => {
           ref={gridRef}
           rowMarkers="number"
           headerHeight={30}
+          // maxColumnWidth={100}
+          // maxColumnAutoWidth={100}
           columns={columns}
+          smoothScrollX={true}
+          smoothScrollY={true}
           // minColumnWidth={500}
           getCellContent={getCellContent}
           // getCellContent={getData}

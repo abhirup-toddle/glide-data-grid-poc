@@ -37,22 +37,44 @@ body {
 }
 
 .synced-header {
-  font-size: 14px;
-  /* font-weight: bold; */
   display: flex;
   width: var(--table-width);
   overflow: auto;
+  font-weight: 600;
+  font-size: 13px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+  scrollbar-width: none;
 }
 
 .header-item {
-  height: 50px;
+  height: 38px;
   background-color: #f1f1f1;
   padding: 8px;
   border: 1px solid #ccc;
+  border-top: none;
   text-align: left;
   position: relative;
+  background-color: #f7f7f8;
+  /* font-family: "Inter, Roboto, -apple-system, BlinkMacSystemFont, avenir next, avenir, segoe ui, helvetica neue, helvetica, Ubuntu, noto, arial, sans-serif"; */
+  /* line-height: 1.4; */
+  border-right: none;
+  border-color: rgba(115, 116, 131, 0.16);
+  min-width: max-content;
+  display: flex;
+  align-items: center;
+}
+
+.header-item:first-child {
+  /* border-left: 1px solid #ccc; */
+  border-left-color: transparent;
 }
 
 .header-item:hover {
-  background-color: #e9e9e9;
+  background-color: #efeff1;
+  cursor: pointer;
+  /* headerFontStyle: "600 13px",
+    baseFontStyle: "13px",
+    markerFontStyle: "9px", */
+  /* editorFontSize: "13px", */
+  /* lineHeight: 1.4, */
 }
