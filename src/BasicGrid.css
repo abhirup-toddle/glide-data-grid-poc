@@ -23,10 +23,18 @@ body {
   justify-content: start;
   align-items: center;
   flex-direction: column;
+  /* background-color: aqua; */
 }
 
 .main-container h1 {
   margin: 20px;
+}
+
+.main-container h2 {
+  margin-bottom: 20px;
+  text-align: start;
+  /* background-color: pink; */
+  width: 70%;
 }
 
 .basic-grid-container {
@@ -44,6 +52,8 @@ body {
   font-size: 13px;
   box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
   scrollbar-width: none;
+
+  overflow: hidden;
 }
 
 .header-item {

@@ -47,6 +47,11 @@
 }
 
 .synced-scroll {
+  /* scroll snap to multiples of 150px */
+
+  /* scroll-snap-type: calc(var(--table-width) / 2) x mandatory; */
+
+  /* scroll-snap-type: calc(var(--table-width) / 2) x mandatory; */
   /* background-color: green; */
   width: var(--table-width);
   /* height: 200px; */

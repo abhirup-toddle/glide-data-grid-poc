@@ -295,3 +295,105 @@ export function generateStudentData(num) {
 
   return students;
 }
+
+export const basic_columns_2 = [
+  {
+    title: "Assignment 1",
+    id: "subject",
+  },
+  {
+    title: "Assignment 2",
+    id: "teacher",
+  },
+  {
+    title: "Assignment 3",
+    id: "school",
+  },
+  {
+    title: "Assignment 4",
+    id: "city",
+  },
+  {
+    title: "Assignment 5",
+    id: "country",
+  },
+  {
+    title: "Assignment 6",
+    id: "enrollment_date",
+  },
+  {
+    title: "Assignment 7",
+    id: "graduation_date",
+  },
+  {
+    title: "Assignment 8",
+    id: "name",
+  },
+  {
+    title: "Assignment 9",
+    id: "marks",
+  },
+  {
+    title: "Assignment 10",
+    id: "age",
+  },
+  {
+    title: "Assignment 11",
+    id: "gender",
+  },
+  {
+    title: "Assignment 12",
+    id: "grade",
+  },
+];
+
+export const basic_columns_3 = [
+  {
+    title: "Term 1",
+    id: "country",
+  },
+  {
+    title: "Term 2",
+    id: "enrollment_date",
+  },
+  {
+    title: "Term 3",
+    id: "graduation_date",
+  },
+  {
+    title: "Term 4",
+    id: "name",
+  },
+  {
+    title: "Term 5",
+    id: "marks",
+  },
+  {
+    title: "Term 6",
+    id: "age",
+  },
+  {
+    title: "Term 7",
+    id: "gender",
+  },
+  {
+    title: "Term 8",
+    id: "grade",
+  },
+  {
+    title: "Term 9",
+    id: "subject",
+  },
+  {
+    title: "Term 10",
+    id: "teacher",
+  },
+  {
+    title: "Term 11",
+    id: "school",
+  },
+  {
+    title: "Term 12",
+    id: "city",
+  },
+];
