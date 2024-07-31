@@ -31,8 +31,6 @@ const BasicGrid = () => {
   }, []);
 
   const onColumnResize = useCallback((cell, width) => {
-    console.log("col resized: ", cell.title, width);
-
     setColumns((prev) => {
       return prev.map((col) => {
         if (col.id === cell.id) {
@@ -42,6 +40,17 @@ const BasicGrid = () => {
       });
     });
   }, []);
+
+  const onCellEdited = useCallback(
+    (cell, newValue) => {
+      const [col, row] = cell;
+      const tempData = [...data];
+      const dataRow = tempData[row];
+      dataRow[studentDataIndexes[col]] = newValue.data;
+      setData([...tempData]);
+    },
+    [data]
+  );
 
   return (
     <div className="main-container">
@@ -62,14 +71,11 @@ const BasicGrid = () => {
           ref={gridRef}
           rowMarkers="number"
           headerHeight={30}
-          // maxColumnWidth={100}
-          // maxColumnAutoWidth={100}
           columns={columns}
           smoothScrollX={true}
           smoothScrollY={true}
-          // minColumnWidth={500}
           getCellContent={getCellContent}
-          // getCellContent={getData}
+          onCellEdited={onCellEdited}
           onColumnResize={onColumnResize}
           rows={data.length}
         />
