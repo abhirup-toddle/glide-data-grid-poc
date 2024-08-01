@@ -75,7 +75,7 @@ body {
 }
 
 .header-item:first-child {
-  /* border-left: 1px solid #ccc; */
+  border-left: 1px solid transparent;
   border-left-color: transparent;
 }
 

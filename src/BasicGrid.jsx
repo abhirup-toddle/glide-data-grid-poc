@@ -154,6 +154,11 @@ const BasicGrid = () => {
   );
 
   const onColumnResize = useCallback((cell, width) => {
+    //get all the ancestors of the cell
+    //calculate the new width of the column
+    //get the delta of the new width and the old width
+    //add the delta to the width of the ancestors
+
     setColumns((prev) => {
       return prev.map((col) => {
         if (col.id === cell.id) {
@@ -190,7 +195,7 @@ const BasicGrid = () => {
           <div
             key={col.title}
             style={{
-              minWidth: col.width ?? 450,
+              minWidth: col.width ?? 600,
               // scrollSnapType: "x mandatory",
               // scrollSnapMarginLeft: "150px",
             }}
