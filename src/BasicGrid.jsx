@@ -248,15 +248,15 @@ const BasicGrid = () => {
               console.log("[ss] key", key);
 
               // get all the columns before the current column, and sum their widths
-              const colsToAdd = columns.slice(0, range.x);
+              // const colsToAdd = columns.slice(0, range.x);
 
               // console.log("[ss] colsToAdd", colsToAdd);
-              const sum = columns
+              const accumulatedWidth = columns
                 .slice(0, range.x)
                 .reduce((acc, col) => acc + (col.width ?? 150), 0);
 
-              console.log("[ss] sum", sum);
-              syncedHeaderRef.current.scrollLeft = sum;
+              console.log("[ss] sum", accumulatedWidth);
+              syncedHeaderRef.current.scrollLeft = accumulatedWidth;
 
               // const col = columns[index];
               // console.log("col", col);
