@@ -6,6 +6,7 @@ const useHeaderRenderer = (data) => {
       outerContainer: {
         display: "flex",
         flexDirection: "row",
+        maxWidth: "900px",
         width: "100%",
         height: "100%",
         fontFamily: "Arial, sans-serif",
@@ -20,7 +21,7 @@ const useHeaderRenderer = (data) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: "10px",
+        padding: "4px",
         borderBottom: "1px solid #ccc",
         borderRight: "1px solid #ccc",
         fontWeight: "bold",
@@ -35,7 +36,7 @@ const useHeaderRenderer = (data) => {
         display: "flex",
         justifyContent: "center",
         alignItems: "center",
-        padding: "10px",
+        padding: "4px",
         borderRight: "1px solid #ccc",
         flex: 1,
       },
@@ -52,14 +53,14 @@ const useHeaderRenderer = (data) => {
             if (isLeaf) {
               return (
                 <div key={`${key}-${index}`} style={styles.leaf}>
-                  {key}
+                  x
                 </div>
               );
             }
 
             return (
               <div key={`${key}-${index}`} style={styles.column}>
-                <div style={styles.header}>{key}</div>
+                <div style={styles.header}>x</div>
                 {renderSubHeaders(value, isLast && index === items.length - 1)}
               </div>
             );

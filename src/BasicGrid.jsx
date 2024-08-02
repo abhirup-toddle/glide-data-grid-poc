@@ -17,6 +17,7 @@ import {
 } from "./utils/starterData";
 
 const BasicGrid = () => {
+  const [selection, setSelection] = useState(null);
   const [data, setData] = useState(() => generateStudentData(50));
   const [columns, setColumns] = useState(basic_columns);
   const [dataGridScrollXOffset, setDataGridScrollXOffset] = useState(0);
@@ -26,6 +27,34 @@ const BasicGrid = () => {
   const isHoveringDataGrid = useRef(false);
   const isHoveringSyncedHeader = useRef(false);
   const [elementToFollow, setElementToFollow] = useState(null);
+  const [groupedColumns, setGroupedColumns] = useState(() => {
+    // take columns array and return a new array with the columns grouped in pairs
+
+    return columns.reduce((acc, col, idx) => {
+      if (idx % 2 === 0) {
+        acc.push([col]);
+      } else {
+        acc[acc.length - 1].push(col);
+      }
+      return acc;
+    }, []);
+  });
+
+  const groupColumns = useCallback(() => {
+    const groups = columns.reduce((acc, col, idx) => {
+      if (idx % 2 === 0) {
+        acc.push([col]);
+      } else {
+        acc[acc.length - 1].push(col);
+      }
+      return acc;
+    }, []);
+    setGroupedColumns(groups);
+  }, [columns]);
+
+  console.log("columns", columns);
+  console.log("groupedColumns", groupedColumns);
+
   const scrollXBy = useRef(0);
 
   const gridRef = useRef(null);
@@ -207,7 +236,46 @@ const BasicGrid = () => {
       </div> */}
       <div className="synced-header" ref={syncedHeaderRef}>
         {/* {basic_columns.map((col) => ( */}
-        {columns.map((col, idx) => (
+        {groupedColumns.map((col, idx) => {
+          const [col1, col2] = col;
+          // console.log("col1", col1);
+          // console.log("col2", col2);
+          // console.log("studentDataIndexes", studentDataIndexes);
+          const rows = columns.filter(
+            (c) => c.id === col1.id || c.id === col2.id
+          );
+
+          const totalWidth = rows.reduce(
+            (acc, col) => acc + (col.width ?? 150),
+            0
+          );
+
+          // console.log("key", key);
+          return (
+            <div
+              key={col1.title}
+              style={{
+                minWidth: totalWidth,
+              }}
+              className="header-item"
+              onClick={() => {
+                // gridRef.current.focus();
+                gridRef.current.remeasureColumns(columns);
+                // setSelection({
+                //   columns: 1,
+                //   rows: 1,
+                // });
+                // setSelection((prev) => ({
+                //   ...prev,
+                //   columns: [col1.id, col2.id],
+                // }));
+              }}
+            >
+              Group {idx + 1}
+            </div>
+          );
+        })}
+        {/* {columns.map((col, idx) => (
           <div
             key={col.title}
             style={{
@@ -219,7 +287,7 @@ const BasicGrid = () => {
           >
             {idx + 1} {col.title}
           </div>
-        ))}
+        ))} */}
       </div>
 
       <div className="basic-grid-container">
@@ -230,6 +298,11 @@ const BasicGrid = () => {
           columns={columns}
           // smoothScrollX={isHoveringDataGrid.current ? false : true}
           // smoothScrollX={true}
+          gridSelection={selection}
+          onGridSelectionChange={(selection) => {
+            console.log("selection", selection);
+            setSelection(selection);
+          }}
           smoothScrollY={true}
           getCellContent={getCellContent}
           onCellEdited={onCellEdited}
