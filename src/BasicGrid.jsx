@@ -1,6 +1,10 @@
 import "./BasicGrid.css";
 import "@glideapps/glide-data-grid/dist/index.css";
-import { DataEditor, GridCellKind } from "@glideapps/glide-data-grid";
+import {
+  CompactSelection,
+  DataEditor,
+  GridCellKind,
+} from "@glideapps/glide-data-grid";
 import {
   useCallback,
   useEffect,
@@ -15,6 +19,20 @@ import {
   generateStudentData,
   studentDataIndexes,
 } from "./utils/starterData";
+
+function createColumnSelection(columnIndexes) {
+  let columnSelection = CompactSelection.empty();
+  columnIndexes.forEach((index) => {
+    columnSelection = columnSelection.add(index);
+  });
+
+  const selection = {
+    columns: columnSelection,
+    rows: CompactSelection.empty(),
+  };
+
+  return selection;
+}
 
 const BasicGrid = () => {
   const [selection, setSelection] = useState(null);
@@ -241,9 +259,15 @@ const BasicGrid = () => {
           // console.log("col1", col1);
           // console.log("col2", col2);
           // console.log("studentDataIndexes", studentDataIndexes);
-          const rows = columns.filter(
-            (c) => c.id === col1.id || c.id === col2.id
-          );
+          let indexes = [];
+          const rows = columns.filter((c, idx) => {
+            if (c.id === col1.id || c.id === col2.id) {
+              indexes.push(idx);
+              return true;
+            }
+          });
+
+          console.log("indexes", indexes);
 
           const totalWidth = rows.reduce(
             (acc, col) => acc + (col.width ?? 150),
@@ -260,11 +284,29 @@ const BasicGrid = () => {
               className="header-item"
               onClick={() => {
                 // gridRef.current.focus();
-                gridRef.current.remeasureColumns(columns);
-                // setSelection({
-                //   columns: 1,
-                //   rows: 1,
-                // });
+                // gridRef.current.remeasureColumns(columns);
+                setSelection((prev) => {
+                  console.log("prev", prev);
+                  const compactSelection = new CompactSelection();
+                  // compactSelection
+                  // console.log(
+                  //   "compactSelection",
+                  //   compactSelection.fromSingleSelection
+                  // );
+                  // CompactSelection.fromSingleSelection({
+                  //   row: 0,
+                  //   column: col1.id,
+                  // });
+                  // console.log(CompactSelection);
+                  // return prev;
+                  // return {
+                  //   // columns: CompactSelection.fromSingleSelection(0).add(1),
+                  //   columns: CompactSelection.fromSingleSelection(1).add(3),
+                  //   rows: CompactSelection.empty(),
+                  // };
+
+                  return createColumnSelection([indexes[0], indexes[1]]);
+                });
                 // setSelection((prev) => ({
                 //   ...prev,
                 //   columns: [col1.id, col2.id],
