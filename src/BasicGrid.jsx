@@ -190,7 +190,7 @@ const BasicGrid = () => {
       <h1>Basic Grid</h1>
 
       <h2>Synced Header</h2>
-      <div className="synced-header top" ref={syncedHeaderRef2}>
+      {/* <div className="synced-header top" ref={syncedHeaderRef2}>
         {basic_columns_3.map((col) => (
           <div
             key={col.title}
@@ -204,40 +204,25 @@ const BasicGrid = () => {
             {col.title}
           </div>
         ))}
-      </div>
+      </div> */}
       <div className="synced-header" ref={syncedHeaderRef}>
-        {basic_columns_2.map((col) => (
+        {/* {basic_columns.map((col) => ( */}
+        {columns.map((col, idx) => (
           <div
             key={col.title}
             style={{
-              minWidth: col.width ?? 300,
+              minWidth: col.width ?? 150,
               // scrollSnapType: "x mandatory",
               // scrollSnapMarginLeft: "150px",
             }}
             className="header-item"
           >
-            {col.title}
+            {idx + 1} {col.title}
           </div>
         ))}
       </div>
 
       <div className="basic-grid-container">
-        {/* <div
-          style={{
-            height: "100%",
-            overflow: "auto",
-            overflowX: "scroll",
-            overflowY: "scroll",
-          }}
-        > */}
-        {/* <div
-            style={{
-              height: "1000px",
-              width: "1000px",
-              background: "linear-gradient(to right, #e66465, #9198e5)",
-            }}
-          ></div> */}
-        {/* </div> */}
         <DataEditor
           ref={gridRef}
           // rowMarkers="number"
@@ -255,8 +240,34 @@ const BasicGrid = () => {
 
             // console.log("currentHeaderScrollX", currentHeaderScrollX);
             if (elementToFollow === "data grid") {
-              syncedHeaderRef.current.scrollLeft = range.x * 150;
-              syncedHeaderRef2.current.scrollLeft = range.x * 150;
+              // syncedHeaderRef.current.scrollLeft = range.x * 150;
+              // const index = studentDataIndexes[range.x];
+              console.log("[ss] studentDataIndexes", studentDataIndexes);
+              console.log("[ss] range.x", range.x);
+              const key = columns[range.x].id;
+              console.log("[ss] key", key);
+
+              // get all the columns before the current column, and sum their widths
+              const colsToAdd = columns.slice(0, range.x);
+
+              // console.log("[ss] colsToAdd", colsToAdd);
+              const sum = columns
+                .slice(0, range.x)
+                .reduce((acc, col) => acc + (col.width ?? 150), 0);
+
+              console.log("[ss] sum", sum);
+              syncedHeaderRef.current.scrollLeft = sum;
+
+              // const col = columns[index];
+              // console.log("col", col);
+              // console.log("columns[range.x]: ", columns[range.x]);
+              // console.log("columns[range.x]: ", columns[range.x]);
+              // console.log("columns[range.x].width", columns[range.x].width);
+              // console.log("scrollValue", scrollValue);
+              // syncedHeaderRef.current.scrollLeft =
+              //   range.x * columns[range.x].width;
+              // syncedHeaderRef.current.scrollLeft = range.x * 150;
+              // syncedHeaderRef2.current.scrollLeft = range.x * 150;
             }
 
             // syncedHeaderRef.current.scrollLeft -= tx;
