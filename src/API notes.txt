@@ -1,0 +1,32 @@
+gradebookHeaders = [
+  {
+    title: 'Student name',
+    options: [{sort: ['asc', 'desc']}],
+    children: []
+  },
+  {
+    title: 'Term 1',
+    children: [{
+      title: 'Homework',
+      children: [{
+        title: 'Classwork 1'
+        tag: {},
+        subscript: {
+          items: [],
+          separator: ''
+        }
+      }, {
+        title: 'Total'
+        tag: {},
+        subscript: {
+          items: [],
+          separator: ''
+        },
+        children: [{
+          title: 'evaluation status',
+          displayTitle: '' 
+        }]
+      }]
+    }],
+  }
+]
